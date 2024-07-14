@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         alert('Login failed: Invalid email or password');
                     }
                     // Trở về trang chủ sau khi đăng nhập thành công
-                    window.location.href = '/';
+                    window.location.href = '/index.html';
                 })
                 .catch(error => {
                     console.error('Error:', error);
