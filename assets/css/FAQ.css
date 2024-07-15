@@ -33,11 +33,8 @@
 }
 
 .content__introduce-content {
-    padding-top: 14px;
     border: #ebebeb solid 1px;
     border-radius: 4px;
-    background-color: #ebebeb;
-    margin-top: 16px;
     font-size: 1.5rem;
 }
 
@@ -48,6 +45,9 @@
     display: flex;
     justify-content: center;
     align-items: center;
+    user-select: none;
+    background-color: #ebebeb;
+    padding: 18px 0;
 }
 
 .content__introduce-content-box {
@@ -55,6 +55,13 @@
     background-color: #ffffff;
     font-size: 1.5rem;
     margin-top: 16px;
+    display: none;
+    transition: max-height 0.3s ease-out;
+    user-select: none;
+}
+
+.content__introduce-content.active .content__introduce-content-box {
+    display: block;
 }
 
 /* Responsive */
