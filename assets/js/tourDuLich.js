@@ -3,12 +3,16 @@ const contentSlider = document.querySelector(".content-slider");
 let numberslider = 7;
 
 // Load danh sách địa điểm du lịch từ API
-const dataUrl = "https://64069dc5862956433e556a26.mockapi.io/v1/diaDiemDuLich";
-fetch(dataUrl)
-    .then((res) => res.json())
-    .then((res) => {
-        array = res;
-    });
+async function fetchData() {
+    const dataUrl = "https://64069dc5862956433e556a26.mockapi.io/v1/diaDiemDuLich";
+    try {
+        const res = await fetch(dataUrl);
+        const data = await res.json();
+        array = data;
+    } catch (error) {
+        console.error("Error fetching data:", error);
+    }
+}
 
 function showAlert() {
     let alertBox = document.querySelector(".alertBox");
@@ -22,6 +26,127 @@ function showAlert() {
 function closeAlert(alertBox) {
     alertBox.style.transform = "translateX(100%)";
     alertBox.style.opacity = "0";
+}
+
+//Xử lý tìm kiếm
+document.addEventListener("DOMContentLoaded", async () => {
+    await fetchData();
+
+    let searchKeyword = localStorage.getItem("searchKeyword");
+    if (searchKeyword) {
+        performSearch(searchKeyword);
+        localStorage.removeItem("searchKeyword"); // Xóa từ khóa sau khi sử dụng
+    }else {
+        loadDataMainContent(array);
+    }
+});
+
+//render tourDuLich
+async function loadDataMainContent(dataMain) {
+    let innerHtmlMainContent = "";
+    if (dataMain.length != 0) {
+        //Lặp qua từng từng trong database
+        dataMain.forEach((element, index) => {
+            //Tách dữ liệu ngày tháng năm
+            let date = element.ngayXuatPhat.split("-");
+            let day = date[2];
+            let month = date[1];
+            let year = date[0];
+            if (element.giaCu != 0) {
+                //Ghép dữ liệu và html lại với nhau
+                innerHtmlMainContent += `
+                <div class="col l-3 m-6 s-12 center-mobile tour-item">
+                    <div class="widget">
+                        <div style="background: url(${element.imgsTour[0]})
+                        no-repeat center/cover;" class="widget__photo"></div>
+                        <div data-idx=${index} onclick="handleItemTravel(${index})" class="widget__button">Đặt vé</div>
+                        <div class="widget__details">
+                            <div class="widget__name">
+                                ${element.diaDiem}
+                            </div>
+                            <div class="widget__vehicle">${element.phuongTien
+                    }</div>
+                            <div class="widget__info">
+                                <div class="center">
+                                    <span> khởi hành lúc: </span>
+                                    <span class="widget__info-time">
+                                        Ngày ${day} tháng ${month} năm ${year}
+                                    </span>
+                                    </div>
+                                    <div class="center">
+                                    <span>Thời gian:</span>
+                                    <span class="widget__info-date">
+                                        ${element.soNgay} ngày
+                                    </span>
+                                </div>
+                                <div class="center">
+                                    <span class="widget__info-date">
+                                        ${element.giaVe} vnđ
+                                    </span>
+                                </div>
+                                <div class="center">
+                                    <span
+                                        class="widget__info-price--old"
+                                    >
+                                        ${element.giaCu != 0
+                        ? element.giaCu
+                        : ""
+                    } vnđ
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>`;
+            }
+        });
+    } else {
+        innerHtmlMainContent += `
+                <h1 class="not-found-item">Không tìm thấy dữ liệu</h1>
+            `
+    }
+    //Render dữ liệu html khi nãy vừa có được
+    contentMain.innerHTML = innerHtmlMainContent;
+
+    // close mobile menu
+    document.querySelectorAll(".nav-link").forEach((n) =>
+        n.addEventListener("click", () => {
+            hamburger.classList.remove("active");
+            navMenu.classList.remove("active");
+        })
+    );
+}
+
+function performSearch(keyword) {
+    let foundArray = [];
+    if (keyword === "") {
+        foundArray = array;
+    } else {
+        array.forEach((item) => {
+            if (item.diaDiem.search(keyword) != -1 && keyword != "") {
+                console.log(keyword);
+                foundArray.push(item);
+            }
+        });
+    }
+    loadDataMainContent(foundArray);
+}
+
+// Xử lý tìm kiếm ngay trên trang tourDuLich.html
+let searchInput = document.querySelector(".search-input");
+let searchBtn = document.querySelector(".search-btn");
+
+searchInput.oninput = (e) => {
+    foundArray = [];
+    if (searchInput.value === "") {
+        foundArray = jsonData;
+    } else {
+        jsonData.forEach((item) => {
+            if (item.diaDiem.search(e.target.value) != -1 && searchInput.value != "") {
+                foundArray.push(item);
+            }
+        });
+    }
 }
 
 function handleTourDuLich() {
